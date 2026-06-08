@@ -5,14 +5,21 @@
 </head>
 <body>
 
-    <h1>AI Resume Analyzer</h1>
+<h1>AI Resume Analyzer</h1>
 
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="resume" required>
-        <button type="submit">Analyze</button>
-    </form>
+<form action="/analyze" method="POST" enctype="multipart/form-data">
 
-    <pre>{{ response }}</pre>
+    <input type="file" name="resume" required>
+
+    <button type="submit">
+        Analyze
+    </button>
+
+</form>
+
+<br>
+
+<p>{{ response }}</p>
 
 </body>
 </html>
