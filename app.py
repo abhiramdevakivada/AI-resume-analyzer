@@ -1,46 +1,35 @@
 from flask import Flask, render_template, request
-import PyPDF2
-import google.generativeai as genai
+import os
 
 app = Flask(__name__)
 
-# Add your Gemini API Key
-genai.configure(api_key="YOUR_API_KEY")
+@app.route('/')
+def home():
+    return render_template('index.html')
 
-model = genai.GenerativeModel("gemini-pro")
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    file = request.files['resume']
 
-def extract_text(pdf_file):
-    reader = PyPDF2.PdfReader(pdf_file)
-    text = ""
+    if file.filename == '':
+        return render_template(
+            'index.html',
+            response="Please select a resume."
+        )
 
-    for page in reader.pages:
-        text += page.extract_text()
+    filename = file.filename
+    upload_path = os.path.join("uploads", filename)
 
-    return text
+    os.makedirs("uploads", exist_ok=True)
+    file.save(upload_path)
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    response = ""
+    # AI analysis logic here
+    result = f"Resume uploaded successfully: {filename}"
 
-    if request.method == "POST":
-        pdf = request.files["resume"]
+    return render_template(
+        'index.html',
+        response=result
+    )
 
-        text = extract_text(pdf)
-
-        prompt = f"""
-        Analyze this resume and give:
-        1. Skills
-        2. Missing skills
-        3. Improvement suggestions
-
-        Resume:
-        {text}
-        """
-
-        result = model.generate_content(prompt)
-        response = result.text
-
-    return render_template("index.html", response=response)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
